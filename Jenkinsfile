@@ -1,5 +1,8 @@
 pipeline {
     agent any
+     environment{
+        SCANNER_HOME= tool 'sonar-scanner'
+    }
 
     parameters {
         string(name: 'DOCKER_COMPOSE_FILE', defaultValue: 'docker-compose.yml', description: 'Path to the Docker Compose file')
@@ -13,7 +16,7 @@ pipeline {
         }
         stage('Checkout') {
             steps {
-                git 'https://github.com/YugeshKumar01/docker-frontend-backend-db.git'
+                git 'https://github.com/singhrajrohit/docker-frontend-backend-db.git'
             }
         }
         
@@ -24,12 +27,21 @@ pipeline {
                 }
             }
         }
+        stage('Sonar Analysis') {
+            steps {
+               withSonarQubeEnv('sonar-server'){
+                   sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=todo-app \
+                   -Dsonar.sources=. \
+                   -Dsonar.projectKey=todo-app '''
+               }
+            }
+        }
 
         // Add more stages for testing, pushing, and deploying if needed
         stage('Push to Docker Hub') {
             environment {
                 DOCKERHUB_CREDENTIALS = credentials('docker-cred') // ID of Docker Hub credentials in Jenkins
-                DOCKERHUB_USERNAME = 'yugesh01' // Provide your Docker Hub username here
+                DOCKERHUB_USERNAME = 'singhrajrohit' // Provide your Docker Hub username here
                 REPOSITORY_NAME = 'mern_stack_application' // Provide the name of your target repository on Docker Hub
                 IMAGE_TAG = 'latest' // Tag to be used for all images
             }
@@ -75,4 +87,3 @@ pipeline {
         }
     }
 }
-
