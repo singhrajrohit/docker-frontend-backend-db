@@ -3,6 +3,7 @@ services:
   web:
     build: ./frontend
     container_name: frontend
+    image: frontend-web
     depends_on:
       - api
     ports:
@@ -12,6 +13,7 @@ services:
   api:
     build: ./backend
     container_name: backend
+    image: backend-api
     depends_on:
       - mongo
     ports:
